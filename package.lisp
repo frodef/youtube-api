@@ -4,5 +4,8 @@
   (:use #:cl)
   (:export
    #:*api-key*
-   #:videos-by-channel
+   #:youtube-search
+   #:channels
+   #:channel-id
+   #:videos-list
    ))
