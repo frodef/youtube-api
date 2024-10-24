@@ -82,14 +82,7 @@
 		  :type "video"
 		  :order "date"
 		  :since since
-		  :event-type :upcoming)
-  #+ignore (api-unpage "search"
-		       :channel-id (channel-id channel)
-		       :part "snippet"	; only choice.
-		       :type "video"
-		       :order (camel-symbol order)
-		       :published-after since
-		       :event-type event-type))
+		  :event-type :upcoming))
 
 (defun videos-list (&rest args
 		    &key (parts '(:snippet)) (part (comma-list parts))
