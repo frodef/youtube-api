@@ -7,7 +7,7 @@
   :version "0.0.1"
   :serial t
   :components ((:file "package")
-               (:file "youtube"))
+               (:file "youtube-api"))
   :depends-on (:str
 	       :quri
 	       :jonathan
