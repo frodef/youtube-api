@@ -29,17 +29,18 @@
      string-or-symbol)))
 
 (defun comma-list (list &optional (map-entry #'camel-symbol))
-  "Format LIST into a (camel-cased) and comma-separated string."
-  (format nil "~{~A~^,~}" (mapcar map-entry list)))
+  "Format non-empty LIST into a (camel-cased) and comma-separated string."
+  (when list
+    (format nil "~{~A~^,~}" (mapcar map-entry list))))
 
 (defun api (api &rest args &key &allow-other-keys)
   "Low-level YouTube API access."
   (assert  *api-key*)
   (jonathan:parse (dex:get (apply #'format-url*
 				  (format nil "https://www.googleapis.com/youtube/v3/~A" api)
-				  :|key| *api-key*
+				  :key *api-key*
 				  args)
-			   :headers '((:user-agent . "Common-Lisp Api")))
+			   :headers '((:user-agent . "Common-Lisp API")))
 		  :keyword-normalizer (lambda (camel-string)
 					(str:upcase (str:header-case camel-string)))
 		  :normalize-all t))
@@ -86,9 +87,12 @@
 
 (defun videos-list (&rest args
 		    &key (parts '(:snippet)) (part (comma-list parts))
+		      ids (id (comma-list ids #'identity))
 		      chart my-rating
 		    &allow-other-keys)
   (apply #'api-unpage "videos"
+	 :ids nil
+	 :id id
 	 :parts nil
 	 :part (camel-symbol part)
 	 :chart (camel-symbol chart)
