@@ -8,4 +8,5 @@
    #:channels
    #:channel-id
    #:videos-list
+   #:with-quota-report
    ))
