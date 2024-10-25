@@ -35,13 +35,13 @@
 			    ((nil) nil)
 			    ((t) *api-key*)
 			    (t account))))
-       (multiple-value-prog1
-	   (handler-bind
-	       ((quota-impact (lambda (c)
-				(when (or (not ,account-var)
-					  (equal ,account-var (quota-account c)))
-				  (incf ,quota-var (quota-impact c))))))
-	     ,@body)
+       (unwind-protect
+	    (handler-bind
+		((quota-impact (lambda (c)
+				 (when (or (not ,account-var)
+					   (equal ,account-var (quota-account c)))
+				   (incf ,quota-var (quota-impact c))))))
+	      ,@body)
 	 (format *trace-output* "~&;; ~S~@[ ~S~]: ~D units."
 		 'with-quota-report
 		 ,tag
@@ -89,13 +89,22 @@
 					(str:upcase (str:header-case camel-string)))
 		  :normalize-all t))
 
-(defun api-unpage (api &rest args &key  &allow-other-keys)
+(defun api-unpage (api &rest args &key (max-results 50) &allow-other-keys)
   "Wrapper around API that combines any 'pages' into a single result list."
-  (loop for page-token = nil then next-page-token
-	for page = (apply #'api api :page-token page-token :max-results 50 args)
+  (loop with num-results = 0
+	for page-token = nil then next-page-token
+	for page = (apply #'api api :page-token page-token
+				    :max-results (min 50 (if max-results
+							     (- max-results num-results)
+							     50))
+				    args)
 	for next-page-token = (getf page :next-page-token)
-	append (getf page :items)
-	while next-page-token))
+	for result-page = (getf page :items)
+	do (incf num-results (length result-page))
+	append result-page
+	while (and next-page-token
+		   (or (not max-results)
+		       (< num-results max-results)))))
 
 (defun youtube-search (&rest args
 		       &key channel-type event-type order safe-search type
