@@ -4,9 +4,10 @@
   (:use #:cl)
   (:export
    #:*api-key*
-   #:youtube-search
+   #:activities
    #:channels
    #:channel-id
    #:videos-list
    #:with-quota-report
+   #:youtube-search
    ))

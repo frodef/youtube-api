@@ -27,6 +27,7 @@
 	 (impact-quota ,var)))))
 
 (defmacro with-quota-report ((&key account tag) &body body)
+  "Print a report to *TRACE-OUTPUT* of API quota usage incurred by BODY."
   (let ((quota-var (make-symbol "quota-var"))
 	(account-var (make-symbol "account-var")))
     `(let ((,quota-var 0)
@@ -161,3 +162,20 @@
        (getf (first (channels :part "id" :for-handle id-or-handle))
 	     :id))
       (t id-or-handle))))
+
+(defun activities (&rest args
+		   &key (parts '(:snippet)) (part (comma-list parts))
+		     channel-id
+		     (mine-p nil mine-p-p) (mine (when mine-p-p (if mine-p "true" "false")))
+		   &allow-other-keys)
+  "An activity resource contains information about an action that a
+particular channel, or user, has taken on YouTube.
+   https://developers.google.com/youtube/v3/docs/activities"
+  (with-quota-impact (1)
+    (apply #'api-unpage "activities"
+	   :parts nil
+	   :part (camel-symbol part)
+	   :mine-p nil
+	   :mine mine
+	   :channel-id channel-id
+	   args)))
