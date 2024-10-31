@@ -144,6 +144,9 @@
 		      ids (id (comma-list ids #'identity))
 		      chart my-rating
 		    &allow-other-keys)
+  (when (> (length ids) 50)
+    (warn "~S listing more than 50 (i.e. ~D) videos is likely to fail."
+	  'videos-list (length ids)))
   (with-quota-impact (1)
     (apply #'api-unpage "videos"
 	   :ids nil
