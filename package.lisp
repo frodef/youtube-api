@@ -10,4 +10,5 @@
    #:videos-list
    #:with-quota-report
    #:youtube-search
+   #:decode-duration
    ))
