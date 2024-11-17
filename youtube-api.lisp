@@ -191,3 +191,25 @@ particular channel, or user, has taken on YouTube.
 	   :mine mine
 	   :channel-id channel-id
 	   args)))
+
+(defun decode-duration (duration-specifier)
+  "Return duration in seconds, or NIL."
+  (let ((tokens
+	  (loop with i = 0
+		while (< i (length duration-specifier))
+		for c = (char duration-specifier i)
+		collect (case c
+			  ((#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
+			   (multiple-value-bind (x pos)
+			       (parse-integer duration-specifier :start i :junk-allowed t :radix 10)
+			     (setf i pos)
+			     x))
+			  (t (incf i) c)))))
+    (when (eql #\P (pop tokens))
+      (when (eql #\T (pop tokens))
+	(loop for (amount unit) on tokens by #'cddr
+	      sum (case unit
+		    ((#\H) (* amount 60 60))
+		    ((#\M) (* amount 60))
+		    ((#\S) (* amount 1))
+		    (t (return-from decode-duration nil))))))))
